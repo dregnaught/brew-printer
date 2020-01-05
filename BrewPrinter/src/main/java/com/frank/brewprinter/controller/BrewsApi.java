@@ -1,6 +1,9 @@
 package com.frank.brewprinter.controller;
 
+import java.awt.print.PrinterException;
 import java.util.List;
+
+import javax.websocket.server.PathParam;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.frank.brewprinter.LabelWriter;
 import com.frank.brewprinter.model.Brew;
 import com.frank.brewprinter.repository.BrewRepository;
 
@@ -20,6 +24,7 @@ public class BrewsApi {
 	}
 
 	private BrewRepository brewRepo;
+	private LabelWriter labelWriter;
 	
 	@GetMapping("/brews")
 	public List<Brew> getBrews() {
@@ -32,8 +37,16 @@ public class BrewsApi {
 	}
 	
 	@PostMapping("/brews")
-	public Brew printBrew(@RequestBody Brew brew) {
-		return brewRepo.save(brew);
+	public Brew printBrew(@RequestBody Brew brew) throws PrinterException {
+		labelWriter.printLabel(brew.getName(), "", brew.getAbv());
+		return brew;
+	}
+	
+	@PostMapping("/brews/{id}")
+	public Brew printBrewById(@PathParam("id") Integer id) throws PrinterException {
+		Brew myBrew = brewRepo.getOne(id);
+		labelWriter.printLabel(myBrew.getName(), "", myBrew.getAbv());
+		return myBrew;
 	}
 	
 //	pre-populate if needed.

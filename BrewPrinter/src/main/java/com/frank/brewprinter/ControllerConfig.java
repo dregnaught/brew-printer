@@ -5,6 +5,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import com.frank.brewprinter.controller.BrewsApi;
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
@@ -15,6 +16,13 @@ import com.pi4j.io.gpio.RaspiPin;
 public class ControllerConfig {
 
 	private final GpioController gpio = GpioFactory.getInstance();
+	
+	public ControllerConfig(BrewsApi brewsApi) {
+		super();
+		this.brewsApi = brewsApi;
+	}
+
+	private BrewsApi brewsApi;
 	
 	@PostConstruct
 	public void setup() {
@@ -29,15 +37,15 @@ public class ControllerConfig {
 		GpioPinDigitalInput bottomMiddleButton = gpio.provisionDigitalInputPin(RaspiPin.GPIO_21, "BottomMiddle");
 		GpioPinDigitalInput bottomRightButton = gpio.provisionDigitalInputPin(RaspiPin.GPIO_22, "BottomRight");
 		
-		topLeftButton.addListener(new ButtonListener(1));
-		topMiddleButton.addListener(new ButtonListener(2));
-		topRightButton.addListener(new ButtonListener(3));
-		middleLeftButton.addListener(new ButtonListener(4));
-		CenterButton.addListener(new ButtonListener(5));
-		middleRightButton.addListener(new ButtonListener(6));
-		bottomLeftButton.addListener(new ButtonListener(7));
-		bottomMiddleButton.addListener(new ButtonListener(8));
-		bottomRightButton.addListener(new ButtonListener(9));
+		topLeftButton.addListener(new ButtonListener(1, brewsApi));
+		topMiddleButton.addListener(new ButtonListener(2, brewsApi));
+		topRightButton.addListener(new ButtonListener(3, brewsApi));
+		middleLeftButton.addListener(new ButtonListener(4, brewsApi));
+		CenterButton.addListener(new ButtonListener(5, brewsApi));
+		middleRightButton.addListener(new ButtonListener(6, brewsApi));
+		bottomLeftButton.addListener(new ButtonListener(7, brewsApi));
+		bottomMiddleButton.addListener(new ButtonListener(8, brewsApi));
+		bottomRightButton.addListener(new ButtonListener(9, brewsApi));
 		
 	}
 }

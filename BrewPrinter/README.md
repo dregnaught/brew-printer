@@ -15,12 +15,13 @@ WiringPi
 
 ### Installing
 
-PI Install:
+####PI Install:
  - Install Raspbian Image
  - Install Java 8: sudo apt-get install openjdk-8-jdk
  - Install WiringPI: sudo apt-get install wiringpi
+ - Install CUPS: sudo apt-get install libcups2-dev libcupsimage2-dev g++ cups cups-client links2
 
-Dymo Drivers (quite problematic, but works with these steps)
+####Dymo Drivers (quite problematic, but works with these steps)
  - Get drivers for Dymo: https://www.dymo.com/en-US/dymo-label-sdk-cups-linux-p?storeId=20051&catalogId=10551#
 
  - tar xvf dymo-cups-drivers-1.4.0.5.tar.gz
@@ -31,8 +32,29 @@ Dymo Drivers (quite problematic, but works with these steps)
  - sudo ./configure
  - sudo make
  - sudo make install
+ - sudo usermod -a -G lpadmin pi
 
-Start far jar with: java -jar <jarname>.jar
+####Configure CUPS for remote access
+ - Open the file /etc/cups/cupsd.conf (ex. sudo nano /etc/cups/cupsd.conf - note: use crtl+x then "y" if using nano to save)
+ - In the blocks <Location /> , <Location /admin> and <Location /admin/conf>, add Allow All (or secure it better if you need to)
+ - In the "Listen" section, replace the loopback localhost Listen with: Port 631 (no Listen, just Port 631). Or secure it better if you need to.
+ -- https://help.ubuntu.com/lts/serverguide/cups.html
+ - restart CUPS (sudo systemctl restart cups.service)
+
+####Add Printer
+ - Navigate to http://[ip]:631
+ - Add printer (make sure it is hooked up and on)
+ - Add the Dymo
+ -- Probably don't need to share it.
+
+####Run Application
+ - Build source with Maven
+ - Copy target to PI
+ - Start far jar with: java -jar <jarname>.jar
+ 
+Add to startup once happy with it:
+ - sudo nano /etc/rc.local
+ - java -jar <jarname>.jar & > /home/pi/brewlog.txt 2>&1
 
 ### Wiring
 Code uses Pi4J. It has it's own wiring diagram (https://pi4j.com/1.2/pins/model-zerow-rev1.html)
