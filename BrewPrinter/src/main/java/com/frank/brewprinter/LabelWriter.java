@@ -30,6 +30,7 @@ public class LabelWriter {
 	private static final int BASE_MARGIN_X = 2;
 	private static final int BASE_MARGIN_Y = 25;
 	private static final String LABEL_LOGO = " MSB ";
+	private static final Logger logger = Logger.getLogger(LabelWriter.class.getName());
 
 	PrinterJob printerJob = PrinterJob.getPrinterJob();
 	PageFormat pageFormat = printerJob.defaultPage();
@@ -47,11 +48,16 @@ public class LabelWriter {
 
 		PrintService[] printServices = PrinterJob.lookupPrintServices();
 		for (int i = 0; i < printServices.length; i++) {
-			System.out.println(printServices[i].getName());
+			logger.log(Level.INFO, "Printer available: ", printServices[i].getName());
 
 			if (printServices[i].getName().contains(PRINTERNAME)) {
+				logger.log(Level.INFO, "Dymo Printer " + PRINTERNAME + " found: ", printServices[i].getName());
 				printService = printServices[i];
 			}
+		}
+		
+		if(printService == null) {
+			throw new RuntimeException("Dymo Printer " + PRINTERNAME + " not found. Bailing.");
 		}
 	}
 
@@ -91,7 +97,7 @@ public class LabelWriter {
 					try {
 						font = Font.createFont(Font.TRUETYPE_FONT, ttf);
 					} catch (FontFormatException | IOException ex) {
-						Logger.getLogger(LabelWriter.class.getName()).log(Level.SEVERE, null, ex);
+						logger.log(Level.SEVERE, null, ex);
 					}
 					g.setFont(font);
 					g.setFont(new Font(g.getFont().getFontName(), g.getFont().getStyle(), 24));
