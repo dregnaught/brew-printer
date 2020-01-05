@@ -1,4 +1,4 @@
-# Project Title
+# Growler label printing and management
 
 Single fat-jar Spring boot project for managing printing of growler stickers for growler sales.
 
