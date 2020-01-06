@@ -17,19 +17,21 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.print.PrintService;
 
+import org.apache.commons.text.WordUtils;
 import org.springframework.stereotype.Component;
 
 @Component
 public class LabelWriter {
 
+	private static final int MAX_CHARS_PER_NAME_LINE = 15;
 	private static final String PRINTERNAME = "DYMO_LabelWriter_450";
 	private static final double PAPER_WIDTH_INCHES = 1;
 	private static final double PAPER_HEIGHT_INCHES = 1;
 	private static final double PAPER_WIDTH_PT = (PAPER_WIDTH_INCHES * 72);
 	private static final double PAPER_HEIGHT_PT = (PAPER_HEIGHT_INCHES * 72);
-	private static final int BASE_MARGIN_X = 2;
+	private static final int BASE_MARGIN_X = 0;
 	private static final int BASE_MARGIN_Y = 25;
-	private static final String LABEL_LOGO = " MSB ";
+	private static final String LABEL_LOGO = "MSB";
 	private static final Logger logger = Logger.getLogger(LabelWriter.class.getName());
 
 	PrinterJob printerJob = PrinterJob.getPrinterJob();
@@ -48,10 +50,10 @@ public class LabelWriter {
 
 		PrintService[] printServices = PrinterJob.lookupPrintServices();
 		for (int i = 0; i < printServices.length; i++) {
-			logger.log(Level.INFO, "Printer available: ", printServices[i].getName());
+			logger.log(Level.INFO, "Printer available: " + printServices[i].getName());
 
 			if (printServices[i].getName().contains(PRINTERNAME)) {
-				logger.log(Level.INFO, "Dymo Printer " + PRINTERNAME + " found: ", printServices[i].getName());
+				logger.log(Level.INFO, "Dymo Printer " + PRINTERNAME + " found: " + printServices[i].getName());
 				printService = printServices[i];
 			}
 		}
@@ -61,7 +63,7 @@ public class LabelWriter {
 		}
 	}
 
-	public void printLabel(final String beername1, final String beername2, final String abv)
+	public void printLabel(final String beername1, final String abv)
 			throws PrinterException {
 		printerJob.setPrintService(printService);
 		printerJob.setPrintable(new Printable() {
@@ -72,26 +74,35 @@ public class LabelWriter {
 					g.translate(10, 10);
 
 					int working_height = BASE_MARGIN_Y;
-
+					String[] myName = wrap(beername1);
+					
+					Font nameFont = new Font("Courier New", g.getFont().getStyle(), 7);
+					g.setFont(nameFont);
+					
 					// beer name
-					g.setFont(new Font(g.getFont().getFontName(), g.getFont().getStyle(), 8));
+					//g.setFont(new Font(g.getFont().getFontName(), g.getFont().getStyle(), 7));
 					working_height += 10;
-					g.drawString("" + beername1, BASE_MARGIN_X, working_height);
+					g.drawString(myName[0], BASE_MARGIN_X, working_height);
 
 					// beer name line 2 (if available)
-					if (beername2 != null && !beername2.isEmpty()) {
-						g.setFont(new Font(g.getFont().getFontName(), g.getFont().getStyle(), 8));
-						working_height += 10;
-						g.drawString("" + beername2, BASE_MARGIN_X, working_height);
+					if (myName.length > 1) {
+						working_height += 8;
+						g.drawString(myName[1], BASE_MARGIN_X, working_height);
+					}
+					
+					// beer name line 3 (if available)
+					if (myName.length > 2) {
+						working_height += 8;
+						g.drawString(myName[2], BASE_MARGIN_X, working_height);
 					}
 
 					// ABV
-					g.setFont(new Font(g.getFont().getFontName(), Font.BOLD, 7));
-					working_height += 7;
-					g.drawString("" + abv, BASE_MARGIN_X + 18, working_height);
+					g.setFont(new Font(g.getFont().getFontName(), Font.BOLD, 6));
+					working_height += 10;
+					g.drawString("ABV: " + abv + "%", BASE_MARGIN_X + 10, working_height);
 
 					// LOGO
-					InputStream ttf = this.getClass().getResourceAsStream("3of9.TTF");
+					InputStream ttf = this.getClass().getClassLoader().getResourceAsStream("3of9.TTF");
 
 					Font font = null;
 					try {
@@ -110,10 +121,26 @@ public class LabelWriter {
 			}
 		}, pageFormat); // The 2nd param is necessary for printing into a label width a right landscape
 						// format.
+		logger.log(Level.INFO, "Printing page for " + beername1);
 		printerJob.print();
 	}
 
 	public int getPageNumbers() {
 		return 1;
+	}
+	
+	private String[] wrap(String theLine) {
+		String F = WordUtils.wrap(theLine, MAX_CHARS_PER_NAME_LINE);
+	    return centerLines(F.split(System.lineSeparator()));
+	}
+	
+	private String[] centerLines(String[] theLines) {
+		for(int i = 0; i < theLines.length; i++) {
+			int myPads = (int)((MAX_CHARS_PER_NAME_LINE - theLines[i].trim().length()) / 2);
+			for(int j = 0; j < myPads; j++) {
+				theLines[i] = " " + theLines[i];
+			}
+		}
+		return theLines;
 	}
 }

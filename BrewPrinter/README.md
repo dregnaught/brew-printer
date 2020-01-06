@@ -50,7 +50,7 @@ WiringPi
 ####Run Application
  - Build source with Maven
  - Copy target to PI
- - Start far jar with: java -jar <jarname>.jar
+ - Start far jar with: sudo java -Dspring.profiles.active=pi -jar growler-brewprinter-0.0.1-SNAPSHOT.jar
  
 Add to startup once happy with it:
  - sudo nano /etc/rc.local
@@ -69,3 +69,6 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
+## Troubleshooting
+If you get a "file not found" error when printing, you may need to install cups-bsd (did with a PI Zero W)

@@ -2,13 +2,15 @@ package com.frank.brewprinter.controller;
 
 import java.awt.print.PrinterException;
 import java.util.List;
+import java.util.Optional;
 
-import javax.websocket.server.PathParam;
-
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.frank.brewprinter.LabelWriter;
@@ -16,37 +18,34 @@ import com.frank.brewprinter.model.Brew;
 import com.frank.brewprinter.repository.BrewRepository;
 
 @RestController()
+@RequestMapping("/brews")
 public class BrewsApi {
 	
-	public BrewsApi(BrewRepository brewRepo) {
+	public BrewsApi(BrewRepository brewRepo, LabelWriter labelWriter) {
 		super();
 		this.brewRepo = brewRepo;
+		this.labelWriter = labelWriter;
 	}
 
 	private BrewRepository brewRepo;
 	private LabelWriter labelWriter;
 	
-	@GetMapping("/brews")
+	@GetMapping
 	public List<Brew> getBrews() {
 		return brewRepo.findAll();
 	}
 	
-	@PutMapping("/brews")
+	@PutMapping
+	@Transactional
 	public Brew updateBrew(@RequestBody Brew brew) {
 		return brewRepo.save(brew);
 	}
 	
-	@PostMapping("/brews")
-	public Brew printBrew(@RequestBody Brew brew) throws PrinterException {
-		labelWriter.printLabel(brew.getName(), "", brew.getAbv());
-		return brew;
-	}
-	
-	@PostMapping("/brews/{id}")
-	public Brew printBrewById(@PathParam("id") Integer id) throws PrinterException {
-		Brew myBrew = brewRepo.getOne(id);
-		labelWriter.printLabel(myBrew.getName(), "", myBrew.getAbv());
-		return myBrew;
+	@PostMapping("/{id}")
+	public Brew printBrewById(@PathVariable("id") String id) throws PrinterException {
+		Optional<Brew> myBrew = brewRepo.findById(Integer.valueOf(id));
+		labelWriter.printLabel(myBrew.get().getName(), myBrew.get().getAbv());
+		return myBrew.get();
 	}
 	
 //	pre-populate if needed.
