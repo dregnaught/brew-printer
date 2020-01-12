@@ -2,30 +2,6 @@ $(document).ready(function() {
 	getBrews();
 });
 
-//var dialog, form;
-
-//var dialog = $("#dialog-form").dialog({
-//	autoOpen : false,
-//	height : 400,
-//	width : 350,
-//	modal : true,
-//	buttons : {
-//		"Update Brew Label" : updateBrew,
-//		Cancel : function() {
-//			dialog.dialog("close");
-//		}
-//	},
-//	close : function() {
-//		form[0].reset();
-//		allFields.removeClass("ui-state-error");
-//	}
-//});
-//
-//var form = dialog.find("form").on("submit", function(event) {
-//	event.preventDefault();
-//	updateBrew();
-//});
-
 $('#brewModal').on('shown.bs.modal', function () {
   $('#brewname').trigger('focus')
 })
@@ -56,9 +32,7 @@ function getBrews() {
 			$("#brewname").val($(this).attr("data-brewname"));
 			$("#abv").val($(this).attr("data-abv"));
 
-			$('#brewModal').modal('show')
-			
-			//alert("clicked me. " + $(this).attr("data-brewid") + " " + $(this).attr("data-brewname") + " " + $(this).attr("data-abv"));
+			$('#brewModal').modal('show')			
 		});
 	}).fail(function(xhr, status, message) {
 		alert("error");
@@ -66,16 +40,7 @@ function getBrews() {
 }
 
 function updateBrew() {
-	//alert("clicked me. " + $("#brewnumber").val() + " " + $("#brewname").val() + " " + $("#abv").val());
-//	$.post("brews", {
-//		id: $("#brewnumber").val(),
-//		name: $("#brewname").val(),
-//		abv: $("#abv").val()
-//		}, 
-//		function(result){
-//			getBrews();
-//			$('#brewModal').modal('close');
-//		});
+
 	var brew = {
 			id: $("#brewnumber").val(),
 			name: $("#brewname").val(),
@@ -91,12 +56,14 @@ function updateBrew() {
 		  success: function(result){
 			  getBrews();
 			  $('#brewModal').modal('hide');
+			  $.notify({
+					message: 'Printing successful. ' + result.name
+				},{
+					type: 'success'
+				});
 		  }
 		});
+
+		  
+
 }
-
-
-
-//$("#update-brew").button().on("click", function() {
-//	dialog.dialog("open");
-//});

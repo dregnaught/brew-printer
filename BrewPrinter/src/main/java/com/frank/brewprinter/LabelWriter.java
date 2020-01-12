@@ -57,72 +57,77 @@ public class LabelWriter {
 				printService = printServices[i];
 			}
 		}
-		
-		if(printService == null) {
-			throw new RuntimeException("Dymo Printer " + PRINTERNAME + " not found. Bailing.");
-		}
 	}
 
 	public void printLabel(final String beername1, final String abv)
 			throws PrinterException {
-		printerJob.setPrintService(printService);
-		printerJob.setPrintable(new Printable() {
-			@Override
-			public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
-				if (pageIndex < getPageNumbers()) {
-					Graphics2D g = (Graphics2D) graphics;
-					g.translate(10, 10);
-
-					int working_height = BASE_MARGIN_Y;
-					String[] myName = wrap(beername1);
+		try {
+			if(printService == null)
+				init();
+			
+			printerJob.setPrintService(printService);
+			printerJob.setPrintable(new Printable() {
+				@Override
+				public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
 					
-					Font nameFont = new Font("Courier New", g.getFont().getStyle(), 7);
-					g.setFont(nameFont);
-					
-					// beer name
-					//g.setFont(new Font(g.getFont().getFontName(), g.getFont().getStyle(), 7));
-					working_height += 10;
-					g.drawString(myName[0], BASE_MARGIN_X, working_height);
+					if (pageIndex < getPageNumbers()) {
+						Graphics2D g = (Graphics2D) graphics;
+						g.translate(10, 10);
 
-					// beer name line 2 (if available)
-					if (myName.length > 1) {
-						working_height += 8;
-						g.drawString(myName[1], BASE_MARGIN_X, working_height);
+						int working_height = BASE_MARGIN_Y;
+						String[] myName = wrap(beername1);
+						
+						Font nameFont = new Font("Courier New", g.getFont().getStyle(), 7);
+						g.setFont(nameFont);
+						
+						// beer name
+						//g.setFont(new Font(g.getFont().getFontName(), g.getFont().getStyle(), 7));
+						working_height += 10;
+						g.drawString(myName[0], BASE_MARGIN_X, working_height);
+
+						// beer name line 2 (if available)
+						if (myName.length > 1) {
+							working_height += 8;
+							g.drawString(myName[1], BASE_MARGIN_X, working_height);
+						}
+						
+						// beer name line 3 (if available)
+						if (myName.length > 2) {
+							working_height += 8;
+							g.drawString(myName[2], BASE_MARGIN_X, working_height);
+						}
+
+						// ABV
+						g.setFont(new Font(g.getFont().getFontName(), Font.BOLD, 6));
+						working_height += 10;
+						g.drawString("ABV: " + abv + "%", BASE_MARGIN_X + 10, working_height);
+
+						// LOGO
+						InputStream ttf = this.getClass().getClassLoader().getResourceAsStream("3of9.TTF");
+
+						Font font = null;
+						try {
+							font = Font.createFont(Font.TRUETYPE_FONT, ttf);
+						} catch (FontFormatException | IOException ex) {
+							logger.log(Level.SEVERE, null, ex);
+						}
+						g.setFont(font);
+						g.setFont(new Font(g.getFont().getFontName(), g.getFont().getStyle(), 24));
+						g.drawString(LABEL_LOGO, BASE_MARGIN_X, BASE_MARGIN_Y);
+
+						return PAGE_EXISTS;
+					} else {
+						return NO_SUCH_PAGE;
 					}
-					
-					// beer name line 3 (if available)
-					if (myName.length > 2) {
-						working_height += 8;
-						g.drawString(myName[2], BASE_MARGIN_X, working_height);
-					}
-
-					// ABV
-					g.setFont(new Font(g.getFont().getFontName(), Font.BOLD, 6));
-					working_height += 10;
-					g.drawString("ABV: " + abv + "%", BASE_MARGIN_X + 10, working_height);
-
-					// LOGO
-					InputStream ttf = this.getClass().getClassLoader().getResourceAsStream("3of9.TTF");
-
-					Font font = null;
-					try {
-						font = Font.createFont(Font.TRUETYPE_FONT, ttf);
-					} catch (FontFormatException | IOException ex) {
-						logger.log(Level.SEVERE, null, ex);
-					}
-					g.setFont(font);
-					g.setFont(new Font(g.getFont().getFontName(), g.getFont().getStyle(), 24));
-					g.drawString(LABEL_LOGO, BASE_MARGIN_X, BASE_MARGIN_Y);
-
-					return PAGE_EXISTS;
-				} else {
-					return NO_SUCH_PAGE;
 				}
-			}
-		}, pageFormat); // The 2nd param is necessary for printing into a label width a right landscape
-						// format.
-		logger.log(Level.INFO, "Printing page for " + beername1);
-		printerJob.print();
+			}, pageFormat); // The 2nd param is necessary for printing into a label width a right landscape
+							// format.
+			logger.log(Level.INFO, "Printing page for " + beername1);
+			printerJob.print();
+		} catch (PrinterException e) {
+			printService = null;
+			throw e;
+		}
 	}
 
 	public int getPageNumbers() {

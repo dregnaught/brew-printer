@@ -21,13 +21,21 @@ $(document).ready(function() {
 				  contentType:"application/json; charset=utf-8",
 				  dataType:"json",
 				  success: function(result){
-					  alert("printed.")
+					  $.notify({
+							message: 'Printing successful.' 
+						},{
+							type: 'success'
+						});
 				  }
 				});
 		  });
 		})
 		  .fail(function(xhr, status, message) {
-		    alert( "error" );
+		    $.notify({
+				message: 'Printing unsuccessful. ' + message 
+			},{
+				type: 'error'
+			});
 		  });
 	
 	

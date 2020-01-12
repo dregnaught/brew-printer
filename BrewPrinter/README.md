@@ -54,7 +54,7 @@ WiringPi
  
 Add to startup once happy with it:
  - sudo nano /etc/rc.local
- - sudo java -Dspring.profiles.active=pi -jar growler-brewprinter-0.0.1-SNAPSHOT.jar & > /home/pi/brewlog.txt 2>&1
+ - sudo java -Dspring.profiles.active=pi -jar /home/pi/growler-brewprinter-0.0.1-SNAPSHOT.jar & > /home/pi/brewlog.txt 2>&1
 
 ### Wiring
 Code uses Pi4J. It has it's own wiring diagram (https://pi4j.com/1.2/pins/model-zerow-rev1.html)
