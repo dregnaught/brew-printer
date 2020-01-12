@@ -11,6 +11,8 @@ import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,7 +32,7 @@ public class LabelWriter {
 	private static final double PAPER_WIDTH_PT = (PAPER_WIDTH_INCHES * 72);
 	private static final double PAPER_HEIGHT_PT = (PAPER_HEIGHT_INCHES * 72);
 	private static final int BASE_MARGIN_X = 0;
-	private static final int BASE_MARGIN_Y = 25;
+	private static final int BASE_MARGIN_Y = 15;
 	private static final String LABEL_LOGO = "MSB";
 	private static final Logger logger = Logger.getLogger(LabelWriter.class.getName());
 
@@ -38,6 +40,8 @@ public class LabelWriter {
 	PageFormat pageFormat = printerJob.defaultPage();
 	PrintService printService;
 	Paper paper = new Paper();
+	
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
 	@PostConstruct
 	public void init() {
@@ -101,6 +105,10 @@ public class LabelWriter {
 						g.setFont(new Font(g.getFont().getFontName(), Font.BOLD, 6));
 						working_height += 10;
 						g.drawString("ABV: " + abv + "%", BASE_MARGIN_X + 10, working_height);
+						
+						// Current Date
+						working_height += 10;
+						g.drawString("Filled: " + DATE_FORMAT.format(new Date()), BASE_MARGIN_X + 4, working_height);
 
 						// LOGO
 						InputStream ttf = this.getClass().getClassLoader().getResourceAsStream("3of9.TTF");
