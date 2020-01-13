@@ -57,7 +57,7 @@ function updateBrew() {
 			  getBrews();
 			  $('#brewModal').modal('hide');
 			  $.notify({
-					message: 'Printing successful. ' + result.name
+					message: 'Update successful. ' + result.name
 				},{
 					type: 'success'
 				});
