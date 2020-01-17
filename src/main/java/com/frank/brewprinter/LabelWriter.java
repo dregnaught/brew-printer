@@ -103,12 +103,14 @@ public class LabelWriter {
 
 						// ABV
 						g.setFont(new Font(g.getFont().getFontName(), Font.BOLD, 6));
-						working_height += 10;
+						working_height += 8;
 						g.drawString("ABV: " + abv + "%", BASE_MARGIN_X + 10, working_height);
 						
-						// Current Date
-						working_height += 10;
-						g.drawString("Filled: " + DATE_FORMAT.format(new Date()), BASE_MARGIN_X + 4, working_height);
+						// Current Dates
+						working_height += 8;
+						g.drawString("Filled: ", BASE_MARGIN_X + 12,  working_height);
+						working_height += 8;
+						g.drawString(DATE_FORMAT.format(new Date()), BASE_MARGIN_X + 8, working_height);
 
 						// LOGO
 						InputStream ttf = this.getClass().getClassLoader().getResourceAsStream("3of9.TTF");
